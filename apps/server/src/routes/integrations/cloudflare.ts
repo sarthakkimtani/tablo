@@ -1,40 +1,59 @@
 import Cloudflare from "cloudflare";
 import { FastifyInstance } from "fastify";
 
-import { db } from "@/lib/db";
-import { integration } from "@/lib/db/schema";
 import { encrypt } from "@/lib/encryption";
-
-type ConnectionRequestBody = {
-  accessToken: string;
-  externalAccountId: string;
-};
+import { ConnectionRequestBody, ConnectionSchema } from "@/lib/schemas/cloudflare";
+import {
+  addCFIntegration,
+  deleteCFIntegration,
+  getCloudflareToken,
+} from "@/repositories/cloudflare";
 
 export default async function cloudflareRoutes(fastify: FastifyInstance) {
-  fastify.post<{ Body: ConnectionRequestBody }>("/connect", async (request, reply) => {
-    const { accessToken, externalAccountId } = request.body;
+  fastify.post<{ Body: ConnectionRequestBody }>(
+    "/",
+    { schema: { body: ConnectionSchema } },
+    async (req) => {
+      const { accessToken, externalAccountId } = req.body;
 
-    if (accessToken.length === 0 || externalAccountId.length === 0) {
-      return reply.status(400).send({ error: "Invalid request body" });
-    }
-
-    try {
       const cf = new Cloudflare({ apiToken: accessToken });
       const account = await cf.accounts.get({ account_id: externalAccountId });
       const encryptedToken = encrypt(accessToken);
 
-      await db.insert(integration).values({
+      await addCFIntegration({
         externalAccountId,
         accessToken: encryptedToken,
-        userId: request.auth!.user.id,
+        userId: req.auth.user.id,
         provider: "cloudflare",
         metadata: {
           name: account.name,
         },
       });
-    } catch (err) {
-      fastify.log.warn(err);
-      return reply.status(500).send({ error: "Something went wrong." });
-    }
+
+      return { success: true };
+    },
+  );
+
+  fastify.get("/workers", async (req) => {
+    const userId = req.auth.user.id;
+
+    const apiToken = await getCloudflareToken(userId);
+    const cf = new Cloudflare({ apiToken });
+    return { success: true, data: cf.workers.scripts };
+  });
+
+  fastify.get("/pages", async (req) => {
+    const userId = req.auth.user.id;
+
+    const apiToken = await getCloudflareToken(userId);
+    const cf = new Cloudflare({ apiToken });
+    return { success: true, data: cf.pages.projects };
+  });
+
+  fastify.delete("/", async (req) => {
+    const userId = req.auth.user.id;
+
+    await deleteCFIntegration(userId);
+    return { success: true };
   });
 }

@@ -1,4 +1,5 @@
 import fastifyCors from "@fastify/cors";
+import fastifySensible from "@fastify/sensible";
 import Fastify from "fastify";
 
 import { betterAuthHandler } from "@/lib/auth/handler";
@@ -23,6 +24,7 @@ app.register(fastifyCors, {
   credentials: true,
   maxAge: 86400,
 });
+app.register(fastifySensible);
 
 app.route({ method: ["GET", "POST"], url: "/auth/*", handler: betterAuthHandler });
 app.register(integrationRoutes, { prefix: "/integrations" });

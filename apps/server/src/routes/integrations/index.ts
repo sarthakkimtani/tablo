@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 
-import { requireAuth } from "@/hooks/auth";
+import { requireAuth } from "@/plugins/auth";
 import cloudflareRoutes from "@/routes/integrations/cloudflare";
 
 export default async function integrationRoutes(fastify: FastifyInstance) {
