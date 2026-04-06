@@ -3,11 +3,7 @@ import { FastifyInstance } from "fastify";
 
 import { encrypt } from "@/lib/encryption";
 import { ConnectionRequestBody, ConnectionSchema } from "@/lib/schemas/cloudflare";
-import {
-  addCFIntegration,
-  deleteCFIntegration,
-  getCloudflareToken,
-} from "@/repositories/cloudflare";
+import * as cloudflareService from "@/repositories/cloudflare";
 
 export default async function cloudflareRoutes(fastify: FastifyInstance) {
   fastify.post<{ Body: ConnectionRequestBody }>(
@@ -20,7 +16,7 @@ export default async function cloudflareRoutes(fastify: FastifyInstance) {
       const account = await cf.accounts.get({ account_id: externalAccountId });
       const encryptedToken = encrypt(accessToken);
 
-      await addCFIntegration({
+      await cloudflareService.addIntegration({
         externalAccountId,
         accessToken: encryptedToken,
         userId: req.auth.user.id,
@@ -36,24 +32,34 @@ export default async function cloudflareRoutes(fastify: FastifyInstance) {
 
   fastify.get("/workers", async (req) => {
     const userId = req.auth.user.id;
+    const { token, id } = await cloudflareService.getToken(userId);
+    if (!id) {
+      return fastify.httpErrors.internalServerError();
+    }
 
-    const apiToken = await getCloudflareToken(userId);
-    const cf = new Cloudflare({ apiToken });
-    return { success: true, data: cf.workers.scripts };
+    const cf = new Cloudflare({ apiToken: token });
+    const workers = await cf.workers.scripts.list({ account_id: id });
+
+    return { success: true, data: workers.result };
   });
 
   fastify.get("/pages", async (req) => {
     const userId = req.auth.user.id;
+    const { token, id } = await cloudflareService.getToken(userId);
+    if (!id) {
+      return fastify.httpErrors.internalServerError();
+    }
 
-    const apiToken = await getCloudflareToken(userId);
-    const cf = new Cloudflare({ apiToken });
-    return { success: true, data: cf.pages.projects };
+    const cf = new Cloudflare({ apiToken: token });
+    const pages = await cf.pages.projects.list({ account_id: id });
+
+    return { success: true, data: pages.result };
   });
 
   fastify.delete("/", async (req) => {
     const userId = req.auth.user.id;
 
-    await deleteCFIntegration(userId);
+    await cloudflareService.deleteIntegration(userId);
     return { success: true };
   });
 }

@@ -89,7 +89,7 @@ export const integration = pgTable(
   "integration",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    userId: uuid("user_id").notNull(),
+    userId: text("user_id").notNull(),
     provider: integrationProvider("provider").notNull(),
     accessToken: text("access_token").notNull(),
     externalAccountId: text("external_account_id"),
