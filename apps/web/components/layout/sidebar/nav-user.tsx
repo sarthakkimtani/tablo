@@ -1,6 +1,7 @@
 "use client";
 
-import { CircleUserRoundIcon, EllipsisVerticalIcon, LogOutIcon } from "lucide-react";
+import { CircleUserRoundIcon, EllipsisVerticalIcon, LogOutIcon, MoonStarIcon } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,6 +20,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Switch } from "@/components/ui/switch";
 
 import { useSession } from "@/contexts/session-context";
 import { authClient } from "@/lib/auth-client";
@@ -26,9 +28,12 @@ import { useState } from "react";
 
 export const NavUser = () => {
   const [signOut, setSignOut] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
   const { isMobile } = useSidebar();
   const { user } = useSession();
   const router = useRouter();
+
+  const isDark = resolvedTheme === "dark";
 
   const handleSignOut = () => {
     setSignOut(true);
@@ -84,6 +89,20 @@ export const NavUser = () => {
               <DropdownMenuItem className="cursor-pointer">
                 <CircleUserRoundIcon />
                 Account
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer justify-between"
+                onSelect={(event) => event.preventDefault()}
+              >
+                <div className="flex items-center gap-2">
+                  <MoonStarIcon />
+                  <span>Dark theme</span>
+                </div>
+                <Switch
+                  checked={isDark}
+                  onCheckedChange={(checked: boolean) => setTheme(checked ? "dark" : "light")}
+                  aria-label="Toggle dark theme"
+                />
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

@@ -14,6 +14,15 @@ export const getToken = async (userId: string) => {
   return { token: decrypt(row.token), id: row.id };
 };
 
+export const getIntegration = async (userId: string) => {
+  const [row] = await db
+    .select({ accountId: integration.externalAccountId })
+    .from(integration)
+    .where(eq(integration.userId, userId));
+
+  return row.accountId !== null ? { accountId: row.accountId } : null;
+};
+
 export const addIntegration = async (data: typeof integration.$inferInsert) => {
   await db.insert(integration).values(data);
 };

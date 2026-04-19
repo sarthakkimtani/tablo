@@ -6,6 +6,16 @@ import { ConnectionRequestBody, ConnectionSchema } from "@/lib/schemas/cloudflar
 import * as cloudflareService from "@/repositories/cloudflare";
 
 export default async function cloudflareRoutes(fastify: FastifyInstance) {
+  fastify.get("/", async (req) => {
+    const userId = req.auth.user.id;
+    const integrationDetails = await cloudflareService.getIntegration(userId);
+    if (integrationDetails) {
+      return { status: "connected", accountId: integrationDetails.accountId };
+    } else {
+      return { status: "disconnected" };
+    }
+  });
+
   fastify.post<{ Body: ConnectionRequestBody }>(
     "/",
     { schema: { body: ConnectionSchema } },

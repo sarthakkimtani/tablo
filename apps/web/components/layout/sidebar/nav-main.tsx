@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import {
   SidebarGroup,
@@ -9,6 +9,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 export const NavMain = ({
   items,
@@ -20,26 +21,34 @@ export const NavMain = ({
   }[];
 }) => {
   const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem
-              className="rounded-md transition-colors duration-150 ease-in-out hover:bg-primary/10 data-[state=open]:bg-primary/10"
-              key={item.title}
-            >
-              <SidebarMenuButton
-                onClick={() => router.push(item.url)}
-                className="cursor-pointer"
-                tooltip={item.title}
+          {items.map((item) => {
+            const isActive = item.url === pathname;
+
+            return (
+              <SidebarMenuItem
+                className={cn(
+                  "rounded-md transition-colors duration-150 ease-in-out hover:bg-primary/10",
+                  isActive && "bg-primary/10"
+                )}
+                key={item.title}
               >
-                {item.icon}
-                <span>{item.title}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+                <SidebarMenuButton
+                  onClick={() => router.push(item.url)}
+                  className="cursor-pointer"
+                  tooltip={item.title}
+                >
+                  {item.icon}
+                  <span>{item.title}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

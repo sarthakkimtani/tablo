@@ -37,7 +37,7 @@ export const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) =
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <Link href="/" className="flex flex-row items-center gap-3">
+            <Link href="/" className="mb-4 flex flex-row items-center gap-3">
               <Image src={Logo} alt="Logo" className="size-9" />
               <span className="text-xl font-semibold">Launchpad</span>
             </Link>
