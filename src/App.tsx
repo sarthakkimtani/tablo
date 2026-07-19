@@ -1,10 +1,13 @@
-import { Button } from "@/components/ui/button";
+import { HashRouter, Route, Routes } from "react-router";
+
+import { NewConnection } from "@/components/pages/new-connection";
 
 export default function App() {
   return (
-    <div className="flex flex-col items-center justify-center gap-5 h-screen">
-      <h1 className="font-bold text-2xl">Hello World</h1>
-      <Button variant="default">Click me!</Button>
-    </div>
+    <HashRouter>
+      <Routes>
+        <Route index element={<NewConnection />} />
+      </Routes>
+    </HashRouter>
   );
 }

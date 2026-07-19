@@ -37,6 +37,15 @@
       },
       "a11y": {
         "recommended": false
+      },
+      "nursery": {
+        "useSortedClasses": {
+          "level": "error",
+          "fix": "safe",
+          "options": {
+            "functions": ["clsx", "cva", "cn"]
+          }
+        }
       }
     }
   },
@@ -52,11 +61,11 @@
               ":BLANK_LINE:",
               [":PACKAGE:"],
               ":BLANK_LINE:",
+              ["**/*.css", "**/*.svg", "**/*.png", "**/*.jpg", "**/*.jpeg"],
+              ":BLANK_LINE:",
               [":ALIAS:"],
               ":BLANK_LINE:",
-              ["./**", "../**"],
-              ":BLANK_LINE:",
-              ["**/*.css", "**/*.svg", "**/*.png", "**/*.jpg", "**/*.jpeg"]
+              ["./**", "../**"]
             ]
           }
         }
